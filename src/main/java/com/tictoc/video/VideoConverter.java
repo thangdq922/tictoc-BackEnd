@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import com.tictoc.comment.CommentRepository;
 import com.tictoc.common.SecurityUtil;
 import com.tictoc.emotion.EmotionRepository;
+import com.tictoc.user.UserConverter;
 import com.tictoc.user.UserRepository;
 
 @Component
@@ -13,6 +14,8 @@ public class VideoConverter {
 
 	@Autowired
 	UserRepository userRepository;
+	@Autowired
+	UserConverter userConverter;
 	@Autowired
 	EmotionRepository emotionRepository;
 	@Autowired
@@ -31,7 +34,7 @@ public class VideoConverter {
 		videoDTO.setLiked(emotionRepository.findByVideoAndUser(video, idCurrent).isPresent());
 		videoDTO.setLikesCount(emotionRepository.countByVideo(video));
 		videoDTO.setCommentsCount(commentRepository.countByVideo(video));
-		videoDTO.setUser(userRepository.findById(video.getCreatedBy()).get());
+		videoDTO.setUser(userConverter.convertToDto(userRepository.findById(video.getCreatedBy()).get()));
 		return videoDTO;
 	}
 

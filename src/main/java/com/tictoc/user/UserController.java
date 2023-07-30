@@ -6,10 +6,9 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,10 +21,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.tictoc.common.Validations;
 import com.tictoc.user.service.UserService;
-
-import jakarta.validation.Valid;
 
 @CrossOrigin(origins = "http://localhost:5000")
 @RestController
@@ -36,10 +32,10 @@ public class UserController {
 	UserService userService;
 
 	@GetMapping("users/suggested")
-	public ResponseEntity<List<UserDTO>> getAllUser(@RequestParam(defaultValue = "0") int page,
+	public ResponseEntity<?> getSuggestedUser(@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "5") int per_page) {
-		Pageable pageSlice = PageRequest.of(page - 1, per_page);
-		return new ResponseEntity<>(userService.findAllUsers(pageSlice), HttpStatus.OK);
+		Pageable pageSlice = PageRequest.of(page - 1, per_page, Sort.by("followersCount").descending());
+		return new ResponseEntity<>(userService.findSuggestedUsers(pageSlice), HttpStatus.OK);
 	}
 
 	@GetMapping(value = "users/@{username}")
@@ -52,10 +48,10 @@ public class UserController {
 	}
 
 	@GetMapping("me/followings")
-	public ResponseEntity<List<UserDTO>> getUserFollow(@RequestParam(defaultValue = "1") int page,
+	public ResponseEntity<List<UserDTO>> getUserFollow(@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "5") int per_page) {
-		Pageable pageSlice = PageRequest.of(page, per_page);
-		return new ResponseEntity<>(userService.findAllUsers(pageSlice), HttpStatus.OK);
+		Pageable pageSlice = PageRequest.of(page - 1, per_page);
+		return new ResponseEntity<>(userService.findUserFollowing(pageSlice), HttpStatus.OK);
 	}
 
 	@GetMapping("users/search")
@@ -71,19 +67,9 @@ public class UserController {
 		return ResponseEntity.ok(userService.saveFieldUser(user, upAvatar));
 	}
 
-	@PostMapping("/auth/register")
-	public ResponseEntity<?> register(@RequestPart @Valid UserDTO user, BindingResult result, Model model,
-			@RequestPart(required = false) MultipartFile upAvatar) {
-		if (result.hasErrors()) {
-			String errorMsg = Validations.bindingError(result);
-			return ResponseEntity.badRequest().body(errorMsg);
-		}
-		return ResponseEntity.ok(userService.saveUser(user, upAvatar));
-	}
-
-	@DeleteMapping("/users")
-	public ResponseEntity<?> deleteUser(long[] ids) {
-		userService.deleteUsers(ids);
+	@DeleteMapping("/users/{id}")
+	public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+		userService.deleteUsers(id);
 		return ResponseEntity.ok("Delete Success");
 	}
 

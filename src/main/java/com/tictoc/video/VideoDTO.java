@@ -3,7 +3,7 @@ package com.tictoc.video;
 import java.sql.Date;
 import java.util.List;
 
-import com.tictoc.user.UserEntity;
+import com.tictoc.user.UserDTO;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -13,13 +13,13 @@ import lombok.Setter;
 public class VideoDTO {
 
 	private Long Id;
-	
+
 	private String caption;
 
 	private String fileUrl;
 
 	private String music;
-	
+
 	private boolean isLiked;
 
 	private Long likesCount;
@@ -29,8 +29,8 @@ public class VideoDTO {
 	private Long viewsCount;
 
 	private List<String> allows;
-	
-	private UserEntity user;
-	
+
+	private UserDTO user;
+
 	private Date createdDate;
 }

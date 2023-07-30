@@ -1,6 +1,7 @@
 package com.tictoc.user;
 
 import java.lang.reflect.Field;
+import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +15,6 @@ import com.tictoc.emotion.EmotionRepository;
 import com.tictoc.user.follow.FollowRepository;
 import com.tictoc.video.VideoEntity;
 import com.tictoc.video.VideoRepository;
-import com.tictoc.video.service.VideoService;
 
 @Component
 public class UserConverter {
@@ -27,8 +27,6 @@ public class UserConverter {
 	VideoRepository videoRepository;
 	@Autowired
 	EmotionRepository emotionRepository;
-	@Autowired
-	VideoService videoService;
 
 	public UserDTO convertToDto(UserEntity user) {
 		UserDTO userDto = new UserDTO();
@@ -44,8 +42,8 @@ public class UserConverter {
 		userDto.setFacebookUrl(user.getFacebookUrl());
 		userDto.setFollowingsCount(followRepository.countByFollowing(user.getId()));
 		userDto.setLikesCount(totalLike(user));
-		userDto.setBirthDay(user.getBirthDay());
-		userDto.setPopularVideo(videoService.findPopularVideo(user.getId()));
+//		userDto.setBirthDay(user.getBirthDay());
+		userDto.setTick(user.isTick());
 		return userDto;
 	}
 
@@ -74,6 +72,8 @@ public class UserConverter {
 				if (value instanceof Integer) {
 					cc = ((Number) value).longValue();
 					ReflectionUtils.setField(field, userEntity, cc);
+				} else if (field.getName().equals("birthDay")) {
+					ReflectionUtils.setField(field, userEntity, Date.valueOf((String) value));
 				} else {
 					ReflectionUtils.setField(field, userEntity, value);
 				}

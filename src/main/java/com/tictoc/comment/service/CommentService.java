@@ -14,6 +14,6 @@ public interface CommentService {
 	
 	List<CommentDTO> findByVideo(Long id);
 	
-	void deleteComment(long []ids);
+	void deleteComment(Long id);
 }
 

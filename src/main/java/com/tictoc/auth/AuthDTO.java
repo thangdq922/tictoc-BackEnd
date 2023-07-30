@@ -7,4 +7,5 @@ public class AuthDTO {
 
 	private String usernameOrEmail;
 	private String password;
+
 }

@@ -1,5 +1,11 @@
 package com.tictoc.config;
 
+
+
+import static org.springframework.http.HttpMethod.DELETE;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.PATCH;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,6 +55,12 @@ public class SecurityConfig {
 				.authorizeHttpRequests(auth -> 
 						auth
 						.requestMatchers("/api/auth/**").permitAll()
+						.requestMatchers(POST,"/api/users/**" ).authenticated()
+						.requestMatchers(DELETE, "/api/users/**").authenticated()
+						.requestMatchers(PATCH,"/api/me/**").authenticated()
+						
+						.requestMatchers(POST, "/api/videos/**").authenticated()
+						.requestMatchers(DELETE, "/api/videos/**").authenticated()
 						.anyRequest().permitAll())
 
 				.sessionManagement(session -> 
@@ -62,7 +74,7 @@ public class SecurityConfig {
 
 				.logout(logout -> 
 					logout
-					.logoutUrl("/auth/logout")
+					.logoutUrl("/api/auth/logout")
 					.addLogoutHandler(logoutHandler)
 					.logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()));
 

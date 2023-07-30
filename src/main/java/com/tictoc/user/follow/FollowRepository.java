@@ -1,5 +1,6 @@
 package com.tictoc.user.follow;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +14,6 @@ public interface FollowRepository extends JpaRepository<FollowEntity, Long> {
 	long countByFollowing(Long following);
 
 	Optional<FollowEntity> findByUserAndFollowing(UserEntity user, Long following);
+	
+	List<FollowEntity> findByFollowing(Long following);
 }

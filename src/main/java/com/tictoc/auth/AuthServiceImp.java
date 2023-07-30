@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.tictoc.auth.jwt.JWTAuthResponse;
 import com.tictoc.auth.jwt.JwtTokenProvider;
 
 @Service
@@ -19,15 +20,16 @@ public class AuthServiceImp implements AuthService {
 	private JwtTokenProvider jwtTokenProvider;
 
 	@Override
-	public String login(AuthDTO authDto) {
-
+	public JWTAuthResponse login(AuthDTO authDto) {
 		Authentication authentication = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(authDto.getUsernameOrEmail(), authDto.getPassword()));
-
 		SecurityContextHolder.getContext().setAuthentication(authentication);
-
 		String token = jwtTokenProvider.generateToken(authentication);
 
-		return token;
+		JWTAuthResponse jwtAuthResponse = new JWTAuthResponse();
+		jwtAuthResponse.setAccessToken(token);
+		jwtAuthResponse
+				.setData(((MyUser) (SecurityContextHolder.getContext()).getAuthentication().getPrincipal()).getUser());
+		return jwtAuthResponse;
 	}
 }

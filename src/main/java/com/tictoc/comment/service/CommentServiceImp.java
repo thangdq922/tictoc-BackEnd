@@ -33,6 +33,7 @@ public class CommentServiceImp implements CommentService {
 		CommentEntity commentEntity = new CommentEntity();
 		commentEntity.setVideo(videoEntity);
 		commentEntity.setComments(comment);
+		commentRepository.save(commentEntity);
 		return converter.convertToDto(commentEntity);
 	}
 
@@ -57,10 +58,8 @@ public class CommentServiceImp implements CommentService {
 
 	@Override
 	@Transactional
-	public void deleteComment(long[] ids) {
-		for (long id : ids) {
-			commentRepository.deleteById(id);
-		}
+	public void deleteComment(Long id) {
+		commentRepository.deleteById(id);
 	}
 
 }

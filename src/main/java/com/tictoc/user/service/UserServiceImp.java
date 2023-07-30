@@ -1,5 +1,6 @@
 package com.tictoc.user.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,22 +46,20 @@ public class UserServiceImp implements UserService {
 
 	@Override
 	@Transactional
-	public UserDTO saveUser(UserDTO userDto, MultipartFile upAvatar) {
+	public UserDTO saveUser(UserDTO userDto) {
 		RoleEntity role = roleRepository.findByCode("ROLE_USER");
 		UserEntity user = new UserEntity();
 
 		user = converter.convertToEntity(userDto);
 		user.setRoles(Arrays.asList(role));
-		if (upAvatar != null) {
-			user.setAvatar(fileService.handleSaveFile(upAvatar, userDto.getId(), "user"));
-		}
+
 		return converter.convertToDto(userRepository.save(user));
 	}
 
 	@Override
 	@Transactional
 	public UserDTO saveFieldUser(Map<String, Object> fields, MultipartFile upAvatar) {
-		Optional<UserEntity> existingUser = userRepository.findById(((Number) fields.get("id")).longValue());
+		Optional<UserEntity> existingUser = userRepository.findById(SecurityUtil.getPrincipal());
 		UserEntity userEntity = existingUser.get();
 		if (existingUser.isPresent()) {
 			userRepository.save(converter.convertFieldToEntity(fields, userEntity));
@@ -79,24 +79,52 @@ public class UserServiceImp implements UserService {
 
 	@Override
 	public UserDTO findByUserName(String username) {
-		UserEntity entity = userRepository.findByUserName(username).get();
-		UserDTO userDTO = converter.convertToDto(entity);
-		userDTO.setVideos(videoService.findVideoByUser(entity.getId()));
-		return userDTO;
+		UserEntity entity = userRepository.findByUserName(username).orElse(null);
+		if (entity != null) {
+			UserDTO userDTO = converter.convertToDto(entity);
+			userDTO.setVideos(videoService.findVideoByUser(entity.getId()));
+			return userDTO;
+		}
+		return null;
 	}
 
 	@Override
 	public List<UserDTO> findAllUsers(Pageable pageable) {
 		Page<UserEntity> users = userRepository.findAll(pageable);
-		return users.stream().map((user) -> converter.convertToDto(user)).collect(Collectors.toList());
+		List<UserDTO> dtos = users.stream().map((user) -> converter.convertToDto(user)).collect(Collectors.toList());
+		dtos.forEach((user) -> user.setPopularVideo(videoService.findPopularVideo(user.getId())));
+		return dtos;
+	}
+
+	@Override
+	public List<UserDTO> findUserFollowing(Pageable pageable) {
+		Long idCurrent = SecurityUtil.getPrincipal();
+		List<FollowEntity> followEntities = followRepository.findByFollowing(idCurrent);
+		List<UserEntity> userEntities = new ArrayList<>();
+		followEntities.forEach((entity) -> userEntities.add(entity.getUser()));
+		int start = (int) pageable.getOffset();
+		int end = Math.min((start + pageable.getPageSize()), userEntities.size());
+		Page<UserEntity> entities = new PageImpl<>(userEntities.subList(start, end), pageable, userEntities.size());
+		return entities.stream().map((entity) -> converter.convertToDto(entity)).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<UserDTO> findSuggestedUsers(Pageable pageable) {
+		Long idCurrent = SecurityUtil.getPrincipal();
+		List<UserEntity> users = userRepository.findAll();
+		List<UserDTO> dtos = users.stream().map((user) -> converter.convertToDto(user)).collect(Collectors.toList());
+		dtos.removeIf(dto -> (dto.isFollowed() == true || dto.getId() == idCurrent));
+		dtos.forEach((user) -> user.setPopularVideo(videoService.findPopularVideo(user.getId())));
+		int start = (int) pageable.getOffset();
+		int end = Math.min((start + pageable.getPageSize()), dtos.size());
+		Page<UserDTO> userDtos = new PageImpl<>(dtos.subList(start, end), pageable, dtos.size());
+		return userDtos.getContent();
 	}
 
 	@Override
 	@Transactional
-	public void deleteUsers(long[] ids) {
-		for (long id : ids) {
-			userRepository.deleteById(id);
-		}
+	public void deleteUsers(Long id) {
+		userRepository.deleteById(id);
 	}
 
 	@Override

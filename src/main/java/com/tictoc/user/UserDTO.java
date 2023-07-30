@@ -7,7 +7,6 @@ import com.tictoc.video.VideoDTO;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,7 +17,7 @@ public class UserDTO {
 
 	@NotBlank(message = "username have blank")
 	private String userName;
-	@NotEmpty(message = "name is empty")
+	
 	private String name;
 	@NotBlank(message = "password have blank")
 	private String password;
@@ -47,5 +46,7 @@ public class UserDTO {
 	private VideoDTO popularVideo;
 	
 	private List<VideoDTO> videos;
+	
+	private String code;
 
 }

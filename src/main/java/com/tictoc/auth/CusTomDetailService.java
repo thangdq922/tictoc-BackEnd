@@ -17,7 +17,7 @@ public class CusTomDetailService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
-		UserEntity userEntity = userRepository.findByUserNameOrEmail(usernameOrEmail, usernameOrEmail).get();
+		UserEntity userEntity = userRepository.findByUserNameOrEmail(usernameOrEmail, usernameOrEmail).orElse(null);
 
 		if (userEntity == null) {
 			throw new UsernameNotFoundException("User not found");

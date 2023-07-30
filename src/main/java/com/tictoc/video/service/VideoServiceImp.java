@@ -1,11 +1,13 @@
 package com.tictoc.video.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +16,8 @@ import com.tictoc.common.FileService;
 import com.tictoc.common.SecurityUtil;
 import com.tictoc.emotion.EmotionEntity;
 import com.tictoc.emotion.EmotionRepository;
+import com.tictoc.user.follow.FollowEntity;
+import com.tictoc.user.follow.FollowRepository;
 import com.tictoc.video.VideoConverter;
 import com.tictoc.video.VideoDTO;
 import com.tictoc.video.VideoEntity;
@@ -32,6 +36,8 @@ public class VideoServiceImp implements VideoService {
 	VideoRepository videoRepository;
 	@Autowired
 	EmotionRepository emotionRepository;
+	@Autowired
+	FollowRepository followRepository;
 
 	@Override
 	@Transactional
@@ -41,7 +47,7 @@ public class VideoServiceImp implements VideoService {
 		if (upFile != null) {
 			videoEntity.setFileUrl(fileService.handleSaveFile(upFile, videoDTO.getId(), "video"));
 		}
-		return converter.convertToDto(videoEntity);
+		return converter.convertToDto(videoRepository.save(videoEntity));
 	}
 
 	@Override
@@ -57,9 +63,22 @@ public class VideoServiceImp implements VideoService {
 	}
 
 	@Override
-	public List<VideoDTO> findAllVideo(String type, Pageable pageable) {
-		Page<VideoEntity> entities = videoRepository.findAll(pageable);
-		return entities.stream().map((entity) -> converter.convertToDto(entity)).collect(Collectors.toList());
+	public List<VideoDTO> findListVideo(String type, Pageable pageable) {
+		if (type.equals("for-you")) {
+			Page<VideoEntity> entities = videoRepository.findAll(pageable);
+			return entities.stream().map((entity) -> converter.convertToDto(entity)).collect(Collectors.toList());
+		} else {
+			Long idCurrent = SecurityUtil.getPrincipal();
+			List<FollowEntity> followEntities = followRepository.findByFollowing(idCurrent);
+			List<VideoEntity> videoEntities = new ArrayList<>();
+			followEntities.forEach(
+					(entity) -> videoEntities.addAll(videoRepository.findByCreatedBy(entity.getUser().getId())));
+			int start = (int) pageable.getOffset();
+			int end = Math.min((start + pageable.getPageSize()), videoEntities.size());
+			Page<VideoEntity> entities = new PageImpl<>(videoEntities.subList(start, end), pageable,
+					videoEntities.size());
+			return entities.stream().map((entity) -> converter.convertToDto(entity)).collect(Collectors.toList());
+		}
 	}
 
 	@Override
@@ -79,17 +98,16 @@ public class VideoServiceImp implements VideoService {
 
 	@Override
 	@Transactional
-	public void deleteVideo(long[] ids) {
-		for (long id : ids) {
-			videoRepository.deleteById(id);
-		}
+	public void deleteVideo(Long id) {
+		videoRepository.deleteById(id);
 	}
 
 	@Override
 	@Transactional
-	public void setView(VideoDTO dto) {
-		Optional<VideoEntity> oldVideo = videoRepository.findById(dto.getId());
-		oldVideo.get().setViewsCount(dto.getViewsCount());
+	public void setView(Long id) {
+		VideoEntity oldVideo = videoRepository.findById(id).get();
+		oldVideo.setViewsCount(oldVideo.getViewsCount() + 1);
+		videoRepository.save(oldVideo);
 	}
 
 	@Override

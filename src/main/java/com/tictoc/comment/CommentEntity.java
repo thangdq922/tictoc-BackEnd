@@ -18,7 +18,7 @@ public class CommentEntity extends BaseEntity {
 
 	private String comments;
 
-	private Long likesCount;
+	private Long likesCount = (long) 0;
 
 	@ManyToOne
 	@JoinColumn(name = "video_id")
