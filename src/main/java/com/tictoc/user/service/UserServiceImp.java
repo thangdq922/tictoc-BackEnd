@@ -89,6 +89,17 @@ public class UserServiceImp implements UserService {
 	}
 
 	@Override
+	public UserDTO findByUserNameOrEmail(String username, String email) {
+		UserEntity entity = userRepository.findByUserNameOrEmail(username, email).orElse(null);
+		if (entity != null) {
+			UserDTO userDTO = converter.convertToDto(entity);
+			userDTO.setVideos(videoService.findVideoByUser(entity.getId()));
+			return userDTO;
+		}
+		return null;
+	}
+
+	@Override
 	public List<UserDTO> findAllUsers(Pageable pageable) {
 		Page<UserEntity> users = userRepository.findAll(pageable);
 		List<UserDTO> dtos = users.stream().map((user) -> converter.convertToDto(user)).collect(Collectors.toList());

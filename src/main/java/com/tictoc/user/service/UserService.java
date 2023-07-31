@@ -17,6 +17,8 @@ public interface UserService {
 
     UserDTO findByUserName(String username);
     
+    UserDTO findByUserNameOrEmail(String username, String email);
+        
     List<UserDTO> findUserFollowing(Pageable pageable);
 
     List<UserDTO> findAllUsers(Pageable pageable);

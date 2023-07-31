@@ -38,9 +38,9 @@ public class AuthController {
 
 	@PostMapping("register")
 	public ResponseEntity<?> register(@RequestBody @Valid UserDTO user, BindingResult result, Model model) {
-		UserDTO existing = userService.findByUserName(user.getUserName());
+		UserDTO existing = userService.findByUserNameOrEmail(user.getUserName(), user.getEmail());
 		if (existing != null) {
-			return ResponseEntity.badRequest().body("Username already exists");
+			return ResponseEntity.badRequest().body("Username or Email already exists");
 		}
 		if (result.hasErrors()) {
 			String errorMsg = Validations.bindingError(result);
@@ -49,7 +49,7 @@ public class AuthController {
 		AuthDTO loginDto = new AuthDTO();
 		loginDto.setUsernameOrEmail(user.getUserName());
 		loginDto.setPassword(user.getPassword());
-		userService.saveUser(user);		
+		userService.saveUser(user);
 		return ResponseEntity.ok(authService.login(loginDto));
 	}
 }
