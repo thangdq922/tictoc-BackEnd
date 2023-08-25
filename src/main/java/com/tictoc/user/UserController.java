@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -23,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.tictoc.user.service.UserService;
 
-@CrossOrigin(origins = "http://localhost:5000")
 @RestController
 @RequestMapping("/api/")
 public class UserController {
@@ -32,7 +30,7 @@ public class UserController {
 	UserService userService;
 
 	@GetMapping("users/suggested")
-	public ResponseEntity<?> getSuggestedUser(@RequestParam(defaultValue = "0") int page,
+	public ResponseEntity<?> getSuggestedUser(@RequestParam(defaultValue = "1") int page,
 			@RequestParam(defaultValue = "5") int per_page) {
 		Pageable pageSlice = PageRequest.of(page - 1, per_page, Sort.by("followersCount").descending());
 		return new ResponseEntity<>(userService.findSuggestedUsers(pageSlice), HttpStatus.OK);

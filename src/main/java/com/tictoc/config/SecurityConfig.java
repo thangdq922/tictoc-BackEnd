@@ -3,8 +3,8 @@ package com.tictoc.config;
 
 
 import static org.springframework.http.HttpMethod.DELETE;
-import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PATCH;
+import static org.springframework.http.HttpMethod.POST;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +22,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.tictoc.auth.CusTomDetailService;
 import com.tictoc.auth.jwt.JwtAuthenticationEntryPoint;
@@ -42,6 +44,19 @@ public class SecurityConfig {
 
 	@Autowired
 	private LogoutHandler logoutHandler;
+	
+	@Bean
+	public WebMvcConfigurer corsConfigurer() {
+		return new WebMvcConfigurer() {
+			@Override
+			public void addCorsMappings(CorsRegistry registry) {
+				 registry.addMapping("/**")
+                 .allowedOrigins("*")
+                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                 .allowedHeaders("*");
+			}
+		};
+	}
 
 	@Bean
 	PasswordEncoder passwordEncoder() {
