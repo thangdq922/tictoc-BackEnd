@@ -7,13 +7,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
 
-@Entity
 @Table(name = "comments")
-@Getter
-@Setter
+@Entity
 public class CommentEntity extends BaseEntity {
 
 	private String comments;
@@ -23,5 +19,29 @@ public class CommentEntity extends BaseEntity {
 	@ManyToOne
 	@JoinColumn(name = "video_id")
 	private VideoEntity video;
+
+	public String getComments() {
+		return comments;
+	}
+
+	public void setComments(String comments) {
+		this.comments = comments;
+	}
+
+	public Long getLikesCount() {
+		return likesCount;
+	}
+
+	public void setLikesCount(Long likesCount) {
+		this.likesCount = likesCount;
+	}
+
+	public VideoEntity getVideo() {
+		return video;
+	}
+
+	public void setVideo(VideoEntity video) {
+		this.video = video;
+	}
 
 }

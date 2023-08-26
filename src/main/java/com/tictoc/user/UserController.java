@@ -14,11 +14,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.tictoc.user.service.UserService;
 
@@ -46,7 +45,7 @@ public class UserController {
 	}
 
 	@GetMapping("me/followings")
-	public ResponseEntity<List<UserDTO>> getUserFollow(@RequestParam(defaultValue = "0") int page,
+	public ResponseEntity<List<UserDTO>> getUserFollow(@RequestParam(defaultValue = "1") int page,
 			@RequestParam(defaultValue = "5") int per_page) {
 		Pageable pageSlice = PageRequest.of(page - 1, per_page);
 		return new ResponseEntity<>(userService.findUserFollowing(pageSlice), HttpStatus.OK);
@@ -59,10 +58,8 @@ public class UserController {
 	}
 
 	@PatchMapping(value = "me")
-	public ResponseEntity<?> updateField(@RequestPart Map<String, Object> user,
-			@RequestPart(required = false) MultipartFile upAvatar) {
-
-		return ResponseEntity.ok(userService.saveFieldUser(user, upAvatar));
+	public ResponseEntity<?> updateField(@RequestBody Map<String, Object> user) {
+		return ResponseEntity.ok(userService.saveFieldUser(user));
 	}
 
 	@DeleteMapping("/users/{id}")

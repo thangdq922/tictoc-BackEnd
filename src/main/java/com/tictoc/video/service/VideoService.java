@@ -3,13 +3,12 @@ package com.tictoc.video.service;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.tictoc.video.VideoDTO;
 
 public interface VideoService {
 
-	VideoDTO saveVideo(VideoDTO videoDTO, MultipartFile upFile);
+	VideoDTO saveVideo(VideoDTO videoDTO);
 
 	VideoDTO findById(Long id);
 

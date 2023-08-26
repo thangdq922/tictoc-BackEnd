@@ -13,16 +13,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "followers")
-@Getter
-@Setter
-public class FollowEntity  {
-	
+public class FollowEntity {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -33,4 +29,29 @@ public class FollowEntity  {
 
 	@CreatedBy
 	private Long following;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public UserEntity getUser() {
+		return user;
+	}
+
+	public void setUser(UserEntity user) {
+		this.user = user;
+	}
+
+	public Long getFollowing() {
+		return following;
+	}
+
+	public void setFollowing(Long following) {
+		this.following = following;
+	}
+
 }

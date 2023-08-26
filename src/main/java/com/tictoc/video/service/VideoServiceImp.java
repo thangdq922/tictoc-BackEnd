@@ -10,9 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.tictoc.common.FileService;
 import com.tictoc.common.SecurityUtil;
 import com.tictoc.emotion.EmotionEntity;
 import com.tictoc.emotion.EmotionRepository;
@@ -31,8 +29,6 @@ public class VideoServiceImp implements VideoService {
 	@Autowired
 	VideoConverter converter;
 	@Autowired
-	private FileService fileService;
-	@Autowired
 	VideoRepository videoRepository;
 	@Autowired
 	EmotionRepository emotionRepository;
@@ -41,12 +37,10 @@ public class VideoServiceImp implements VideoService {
 
 	@Override
 	@Transactional
-	public VideoDTO saveVideo(VideoDTO videoDTO, MultipartFile upFile) {
+	public VideoDTO saveVideo(VideoDTO videoDTO) {
 		VideoEntity videoEntity = new VideoEntity();
 		videoEntity = converter.convertToEntity(videoDTO);
-		if (upFile != null) {
-			videoEntity.setFileUrl(fileService.handleSaveFile(upFile, videoDTO.getId(), "video"));
-		}
+		
 		return converter.convertToDto(videoRepository.save(videoEntity));
 	}
 

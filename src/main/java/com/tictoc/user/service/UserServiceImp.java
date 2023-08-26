@@ -12,9 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.tictoc.common.FileService;
 import com.tictoc.common.SecurityUtil;
 import com.tictoc.user.UserConverter;
 import com.tictoc.user.UserDTO;
@@ -40,8 +38,6 @@ public class UserServiceImp implements UserService {
 	@Autowired
 	private UserConverter converter;
 	@Autowired
-	private FileService fileService;
-	@Autowired
 	VideoService videoService;
 
 	@Override
@@ -58,14 +54,11 @@ public class UserServiceImp implements UserService {
 
 	@Override
 	@Transactional
-	public UserDTO saveFieldUser(Map<String, Object> fields, MultipartFile upAvatar) {
+	public UserDTO saveFieldUser(Map<String, Object> fields) {
 		Optional<UserEntity> existingUser = userRepository.findById(SecurityUtil.getPrincipal());
 		UserEntity userEntity = existingUser.get();
 		if (existingUser.isPresent()) {
-			userRepository.save(converter.convertFieldToEntity(fields, userEntity));
-			if (upAvatar != null) {
-				userEntity.setAvatar(fileService.handleSaveFile(upAvatar, userEntity.getId(), "user"));
-			}
+			userRepository.save(converter.convertFieldToEntity(fields, userEntity));			
 			return converter.convertToDto(userEntity);
 		}
 		return null;

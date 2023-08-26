@@ -36,13 +36,8 @@ public class JwtTokenProvider {
 
 		Date expireDate = new Date(currentDate.getTime() + jwtExpirationDate);
 
-		String token = 
-				Jwts.builder()
-				.setSubject(username)
-				.setIssuedAt(new Date())
-				.setExpiration(expireDate)
-				.signWith(key())
-				.compact();
+		String token = Jwts.builder().setSubject(username).setIssuedAt(new Date()).setExpiration(expireDate)
+				.signWith(key()).compact();
 		return token;
 	}
 
@@ -52,13 +47,7 @@ public class JwtTokenProvider {
 
 	// get username from Jwt token
 	public String getUsername(String token) {
-		Claims claims = 
-				Jwts
-				.parserBuilder()
-				.setSigningKey(key())
-				.build()
-				.parseClaimsJws(token)
-				.getBody();
+		Claims claims = Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(token).getBody();
 		String username = claims.getSubject();
 		return username;
 	}

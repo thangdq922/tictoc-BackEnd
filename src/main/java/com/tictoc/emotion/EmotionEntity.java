@@ -14,14 +14,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
 
 @Entity
 @Table(name = "emotions")
 @EntityListeners(AuditingEntityListener.class)
-@Getter
-@Setter
 public class EmotionEntity {
 
 	@Id
@@ -35,4 +31,29 @@ public class EmotionEntity {
 	@CreatedBy
 	@Column(name = "user_id")
 	private Long user;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public VideoEntity getVideo() {
+		return video;
+	}
+
+	public void setVideo(VideoEntity video) {
+		this.video = video;
+	}
+
+	public Long getUser() {
+		return user;
+	}
+
+	public void setUser(Long user) {
+		this.user = user;
+	}
+
 }

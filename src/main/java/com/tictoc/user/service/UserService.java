@@ -4,14 +4,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.tictoc.user.UserDTO;
 
 public interface UserService {
     UserDTO saveUser(UserDTO userDto);
     
-    UserDTO saveFieldUser(Map<String, Object> fields, MultipartFile upAvatar);
+    UserDTO saveFieldUser(Map<String, Object> fields);
     
     UserDTO findById(Long id);
 
