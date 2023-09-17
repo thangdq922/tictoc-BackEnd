@@ -8,8 +8,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.tictoc.user.UserEntity;
-import com.tictoc.user.role.RoleEntity;
+import com.tictoc.entity.RoleEntity;
+import com.tictoc.entity.UserEntity;
 
 public class MyUser implements UserDetails {
 	private static final long serialVersionUID = 1L;

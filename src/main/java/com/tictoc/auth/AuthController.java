@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tictoc.auth.jwt.JWTAuthResponse;
-import com.tictoc.common.Validations;
-import com.tictoc.user.UserDTO;
-import com.tictoc.user.service.UserService;
+import com.tictoc.dto.UserDTO;
+import com.tictoc.service.UserService;
+import com.tictoc.util.Validations;
 
 import jakarta.validation.Valid;
 

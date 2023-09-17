@@ -1,4 +1,4 @@
-package com.tictoc.common;
+package com.tictoc.util;
 
 import java.util.HashMap;
 import java.util.Map;

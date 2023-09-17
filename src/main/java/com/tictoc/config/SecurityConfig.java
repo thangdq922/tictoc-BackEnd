@@ -67,6 +67,11 @@ public class SecurityConfig {
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(crsf -> crsf.disable())
 				.cors(cors -> cors.disable())
+				 .headers(headers -> headers
+			               .frameOptions(frameOptions -> frameOptions
+			                   .sameOrigin()
+			              )
+			            )
 				.authorizeHttpRequests(auth -> 
 						auth
 						.requestMatchers("/api/auth/**").permitAll()

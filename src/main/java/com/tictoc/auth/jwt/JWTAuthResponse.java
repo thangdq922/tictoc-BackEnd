@@ -1,6 +1,6 @@
 package com.tictoc.auth.jwt;
 
-import com.tictoc.user.UserEntity;
+import com.tictoc.entity.UserEntity;
 
 
 public class JWTAuthResponse {

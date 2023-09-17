@@ -6,8 +6,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.tictoc.user.UserEntity;
-import com.tictoc.user.UserRepository;
+import com.tictoc.entity.UserEntity;
+import com.tictoc.repository.UserRepository;
 
 @Service
 public class CusTomDetailService implements UserDetailsService {
