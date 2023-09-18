@@ -10,8 +10,8 @@ public interface NotificationService {
 	Notification createNotification(NotificationEntity notification);
 
 	List<Notification> getNotificationsByUserTo(String userName);
-	
-	 void saveStatus();
+
+	void saveStatus();
 
 	void clear();
 

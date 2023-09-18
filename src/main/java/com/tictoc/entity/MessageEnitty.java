@@ -2,16 +2,13 @@ package com.tictoc.entity;
 
 import java.util.Date;
 
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import com.tictoc.constraint.NotificationType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -20,9 +17,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "notifications")
+@Table(name = "messages")
 @EntityListeners(AuditingEntityListener.class)
-public class NotificationEntity {
+public class MessageEnitty {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,35 +31,16 @@ public class NotificationEntity {
 	@JoinColumn(name = "user_to_id")
 	private UserEntity userTo;
 
+	@CreatedBy
 	@ManyToOne
 	@JoinColumn(name = "user_from_id")
 	private UserEntity userFrom;
-
-	@ManyToOne
-	@JoinColumn(name = "video_id")
-	private VideoEntity video;
-
-	@Enumerated(EnumType.STRING)
-	private NotificationType notificationType;
 
 	private boolean status = false;
 
 	@Column(name = "createddate")
 	@CreatedDate
 	private Date createdDate;
-
-	public NotificationEntity() {
-	}
-
-	public NotificationEntity(String content, UserEntity userTo, UserEntity userFrom, VideoEntity video,
-			NotificationType notificationType) {
-		super();
-		this.content = content;
-		this.userTo = userTo;
-		this.userFrom = userFrom;
-		this.video = video;
-		this.notificationType = notificationType;
-	}
 
 	public Long getId() {
 		return id;
@@ -88,14 +66,6 @@ public class NotificationEntity {
 		this.userTo = userTo;
 	}
 
-	public VideoEntity getVideo() {
-		return video;
-	}
-
-	public void setVideo(VideoEntity video) {
-		this.video = video;
-	}
-
 	public UserEntity getUserFrom() {
 		return userFrom;
 	}
@@ -104,12 +74,12 @@ public class NotificationEntity {
 		this.userFrom = userFrom;
 	}
 
-	public NotificationType getNotificationType() {
-		return notificationType;
+	public boolean isStatus() {
+		return status;
 	}
 
-	public void setNotificationType(NotificationType notificationType) {
-		this.notificationType = notificationType;
+	public void setStatus(boolean status) {
+		this.status = status;
 	}
 
 	public Date getCreatedDate() {
@@ -118,14 +88,6 @@ public class NotificationEntity {
 
 	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
-	}
-
-	public boolean isStatus() {
-		return status;
-	}
-
-	public void setStatus(boolean status) {
-		this.status = status;
 	}
 
 }

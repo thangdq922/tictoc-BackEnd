@@ -23,15 +23,19 @@ public class NotificationController {
 	NotificationService notificationService;
 
 	@MessageMapping("/notification")
-	public void getNotificationsByUserTo(@Payload String userName) {
+	public void getNotificationsByUserTo(@Payload(required = false) String userName) {
+		if (userName == null) {
+			return;
+		}
 		List<Notification> notifs = notificationService.getNotificationsByUserTo(userName);
 		simpMessagingTemplate.convertAndSendToUser(userName, "/queue/notif", notifs);
 	}
-	
+
 	@PatchMapping("/api/notifications")
 	public void setStatus() {
 		notificationService.saveStatus();
 	}
+
 	@DeleteMapping("/api/notifications")
 	public ResponseEntity<?> deleteNotif() {
 		notificationService.clear();
