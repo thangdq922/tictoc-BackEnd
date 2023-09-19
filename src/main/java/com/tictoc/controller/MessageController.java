@@ -1,8 +1,8 @@
 package com.tictoc.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Header;
@@ -10,6 +10,8 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tictoc.dto.MessageDTO;
@@ -23,6 +25,7 @@ public class MessageController {
 	private SimpMessagingTemplate simpMessagingTemplate;
 	@Autowired
 	private MessageService messageService;
+
 	@Autowired
 	MessageRepository repository;
 
@@ -31,8 +34,8 @@ public class MessageController {
 		if (userName == null) {
 			return;
 		}
-		List<MessageDTO> messages = messageService.getMessageByUserFrom(userName);
-		simpMessagingTemplate.convertAndSendToUser(userName, "/queue/messages", messages);
+		simpMessagingTemplate.convertAndSendToUser(userName, "/queue/messages",
+				messageService.getMessageByUserFrom(userName));
 	}
 
 	@MessageMapping("/messages.sendMessage")
@@ -43,13 +46,22 @@ public class MessageController {
 
 	@MessageMapping("/messages.clear")
 	public void clearMessage(@Payload String userName) {
-//		messageService.clear(userName);
-		List<MessageDTO> messages = messageService.getMessageByUserFrom(userName);
-		simpMessagingTemplate.convertAndSendToUser(userName, "/queue/messages", messages);
+		messageService.clear(userName);
+		simpMessagingTemplate.convertAndSendToUser(userName, "/queue/messages",
+				messageService.getMessageByUserFrom(userName));
 	}
-	
-	@GetMapping("/api/mess")
-	public ResponseEntity<?> getSuggestedUser() {
-		
-		return new ResponseEntity<>(repository.bb(), HttpStatus.OK);}
+
+	@GetMapping("/api/users/{userNameTo}/messages")
+	public ResponseEntity<?> getSuggestedUser(@PathVariable String userNameTo) {
+
+		return new ResponseEntity<>(messageService.getMessageUserFromUserTo(userNameTo), HttpStatus.OK);
 	}
+
+	@GetMapping("/api/messages")
+	public ResponseEntity<?> getSuggestedUse() {
+
+		return new ResponseEntity<>(
+				repository.findMessageByUserFrom(3l, PageRequest.of(0, 1000, Sort.Direction.DESC, "createddate")),
+				HttpStatus.OK);
+	}
+}

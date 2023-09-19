@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.tictoc.converter.MessageConverter;
@@ -38,9 +41,16 @@ public class MessageServiceImp implements MessageService {
 	}
 
 	@Override
-	public List<MessageDTO> getMessageByUserFrom(String username) {
+	public Page<MessageEnitty> getMessageByUserFrom(String username) {
 		UserEntity userEntity = userRepository.findByUserName(username).orElse(null);
-		List<MessageEnitty> entities = repository.findMessageByUserFrom(userEntity.getId());
+		return repository.findMessageByUserFrom(userEntity.getId(),
+				PageRequest.of(0, 1000, Sort.Direction.DESC, "createddate"));
+	}
+
+	@Override
+	public List<MessageDTO> getMessageUserFromUserTo(String username) {
+		UserEntity userEntity = userRepository.findByUserName(username).orElse(null);
+		List<MessageEnitty> entities = repository.findByUserFromAndUserTo(SecurityUtil.getUserCurrent(), userEntity);
 		return entities.stream().map((entity) -> converter.convertToDto(entity)).collect(Collectors.toList());
 	}
 
