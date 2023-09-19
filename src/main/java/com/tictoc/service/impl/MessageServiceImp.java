@@ -40,7 +40,7 @@ public class MessageServiceImp implements MessageService {
 	@Override
 	public List<MessageDTO> getMessageByUserFrom(String username) {
 		UserEntity userEntity = userRepository.findByUserName(username).orElse(null);
-		List<MessageEnitty> entities = repository.findByUserFromOrderByCreatedDateDesc(userEntity);
+		List<MessageEnitty> entities = repository.findMessageByUserFrom(userEntity.getId());
 		return entities.stream().map((entity) -> converter.convertToDto(entity)).collect(Collectors.toList());
 	}
 

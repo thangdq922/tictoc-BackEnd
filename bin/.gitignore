@@ -31,3 +31,12 @@ build/
 
 ### VS Code ###
 .vscode/
+/.gitignore
+/.mvn/
+/Dockerfile
+/README.md
+/database/
+/mvnw
+/mvnw.cmd
+/pom.xml
+/src/
