@@ -1,6 +1,6 @@
 package com.tictoc.controller;
 
-import java.security.Principal;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -12,14 +12,13 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tictoc.auth.MyUser;
 import com.tictoc.dto.MessageDTO;
 import com.tictoc.repository.MessageRepository;
 import com.tictoc.service.MessageService;
+import com.tictoc.util.SecurityUtil;
 
 @RestController
 public class MessageController {
@@ -41,9 +40,10 @@ public class MessageController {
 	}
 
 	@MessageMapping("/messages.sendMessage")
-	public void sendMessage(@Header String userName, @Payload String Content) {
-		MessageDTO message = messageService.sendMessage(Content, userName);
-		simpMessagingTemplate.convertAndSendToUser(userName, "/queue/message", message);
+	public void sendMessage(@Header String userName, @Payload String Content, UsernamePasswordAuthenticationToken u) {
+		MessageDTO message = messageService.sendMessage(Content, userName, SecurityUtil.getPrincipal(u));
+		simpMessagingTemplate.convertAndSendToUser(userName, "/queue/chatroom", message);
+//		simpMessagingTemplate.convertAndSendToUser(u.getName(), "/queue/chatrooms", message);
 	}
 
 	@MessageMapping("/messages.clear")
@@ -54,16 +54,19 @@ public class MessageController {
 	}
 
 	@MessageMapping("/messages.chatroom")
-	public void getSuggestedUser(@Payload String userNameTo, Principal principal) {
-//		Principal cc = SecurityContextHolder.getContext().getAuthentication();
-		System.out.println(((MyUser)((UsernamePasswordAuthenticationToken)principal).getPrincipal()).getUser().getId());
-//		simpMessagingTemplate.convertAndSendToUser(userNameTo, "/queue/chatroom", messageService.getChatRoom(userNameTo));
-		
+	public void getSuggestedUser(@Payload String userNameTo, UsernamePasswordAuthenticationToken u) {
+		List<MessageDTO> messRoom = 
+				messageService.getChatRoom(userNameTo, SecurityUtil.getPrincipal(u).getId());
+		simpMessagingTemplate.
+				convertAndSendToUser(u.getName(), "/queue/chatroom", messRoom);
+
 	}
-	
+
 	@GetMapping("/vv")
 	public ResponseEntity<?> getSuggestedUsr() {
 
-		return new ResponseEntity<>(repository.findMessageByUserFrom(3l, PageRequest.of(0, 1000, Sort.Direction.DESC, "createddate")), HttpStatus.OK);
+		return new ResponseEntity<>(
+				repository.findMessageByUserFrom(3l, PageRequest.of(0, 1000, Sort.Direction.DESC, "createddate")),
+				HttpStatus.OK);
 	}
 }

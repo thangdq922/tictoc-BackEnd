@@ -55,17 +55,17 @@ public class UserServiceImp implements UserService {
 		user = converter.convertToEntity(userDto);
 		user.setRoles(Arrays.asList(role));
 
-		return converter.convertToDto(userRepository.save(user), SecurityUtil.getPrincipalId());
+		return converter.convertToDto(userRepository.save(user), SecurityUtil.getCurrentID());
 	}
 
 	@Override
 	@Transactional
 	public UserDTO saveFieldUser(Map<String, Object> fields) {
-		Optional<UserEntity> existingUser = userRepository.findById(SecurityUtil.getPrincipalId());
+		Optional<UserEntity> existingUser = userRepository.findById(SecurityUtil.getCurrentID());
 		UserEntity userEntity = existingUser.get();
 		if (existingUser.isPresent()) {
 			userRepository.save(converter.convertFieldToEntity(fields, userEntity));
-			return converter.convertToDto(userEntity, SecurityUtil.getPrincipalId());
+			return converter.convertToDto(userEntity, SecurityUtil.getCurrentID());
 		}
 		return null;
 	}
@@ -73,14 +73,14 @@ public class UserServiceImp implements UserService {
 	@Override
 	public UserDTO findById(Long id) {
 		Optional<UserEntity> entity = userRepository.findById(id);
-		return converter.convertToDto(entity.get(), SecurityUtil.getPrincipalId());
+		return converter.convertToDto(entity.get(), SecurityUtil.getCurrentID());
 	}
 
 	@Override
 	public UserDTO findByUserName(String username) {
 		UserEntity entity = userRepository.findByUserName(username).orElse(null);
 		if (entity != null) {
-			UserDTO userDTO = converter.convertToDto(entity, SecurityUtil.getPrincipalId());
+			UserDTO userDTO = converter.convertToDto(entity, SecurityUtil.getCurrentID());
 			userDTO.setVideos(videoService.findVideoByUser(entity.getId()));
 			return userDTO;
 		}
@@ -91,7 +91,7 @@ public class UserServiceImp implements UserService {
 	public UserDTO findByUserNameOrEmail(String username, String email) {
 		UserEntity entity = userRepository.findByUserNameOrEmail(username, email).orElse(null);
 		if (entity != null) {
-			UserDTO userDTO = converter.convertToDto(entity, SecurityUtil.getPrincipalId());
+			UserDTO userDTO = converter.convertToDto(entity, SecurityUtil.getCurrentID());
 			userDTO.setVideos(videoService.findVideoByUser(entity.getId()));
 			return userDTO;
 		}
@@ -101,7 +101,7 @@ public class UserServiceImp implements UserService {
 	@Override
 	public List<UserDTO> findAllUsers(Pageable pageable) {
 		Page<UserEntity> users = userRepository.findAll(pageable);
-		List<UserDTO> dtos = users.stream().map((user) -> converter.convertToDto(user, SecurityUtil.getPrincipalId()))
+		List<UserDTO> dtos = users.stream().map((user) -> converter.convertToDto(user, SecurityUtil.getCurrentID()))
 				.collect(Collectors.toList());
 		dtos.forEach((user) -> user.setPopularVideo(videoService.findPopularVideo(user.getId())));
 		return dtos;
@@ -109,7 +109,7 @@ public class UserServiceImp implements UserService {
 
 	@Override
 	public List<UserDTO> findUserFollowing(Pageable pageable) {
-		Long idCurrent = SecurityUtil.getPrincipalId();
+		Long idCurrent = SecurityUtil.getCurrentID();
 		List<FollowEntity> followEntities = followRepository.findByFollowing(idCurrent);
 		List<UserEntity> userEntities = new ArrayList<>();
 		followEntities.forEach((entity) -> userEntities.add(entity.getUser()));
@@ -122,7 +122,7 @@ public class UserServiceImp implements UserService {
 
 	@Override
 	public List<UserDTO> findSuggestedUsers(Pageable pageable) {
-		Long idCurrent = SecurityUtil.getPrincipalId();
+		Long idCurrent = SecurityUtil.getCurrentID();
 		List<UserEntity> users = userRepository.findAll();
 		List<UserDTO> dtos = users.stream().map((user) -> converter.convertToDto(user, idCurrent))
 				.collect(Collectors.toList());
@@ -143,7 +143,7 @@ public class UserServiceImp implements UserService {
 	@Override
 	public List<UserDTO> searchUser(String search_key, Pageable pageable) {
 		Page<UserEntity> entities = userRepository.findByUserNameContaining(search_key, pageable);
-		return entities.stream().map((entity) -> converter.convertToDto(entity, SecurityUtil.getPrincipalId()))
+		return entities.stream().map((entity) -> converter.convertToDto(entity, SecurityUtil.getCurrentID()))
 				.collect(Collectors.toList());
 	}
 
@@ -159,14 +159,14 @@ public class UserServiceImp implements UserService {
 				SecurityUtil.getUserCurrent().getUserName() + " Followed you", userEntity,
 				SecurityUtil.getUserCurrent(), null, NotificationType.FOLLOW);
 		notificationRepository.save(notificationEntity);
-		return converter.convertToDto(userEntity, SecurityUtil.getPrincipalId());
+		return converter.convertToDto(userEntity, SecurityUtil.getCurrentID());
 	}
 
 	@Override
 	@Transactional
 	public UserDTO unfollow(Long id) {
 		UserEntity userEntity = userRepository.findById(id).get();
-		Long idCurrent = SecurityUtil.getPrincipalId();
+		Long idCurrent = SecurityUtil.getCurrentID();
 		FollowEntity followEntity = followRepository.findByUserAndFollowing(userEntity, idCurrent).get();
 		followRepository.delete(followEntity);
 		return converter.convertToDto(userEntity, idCurrent);

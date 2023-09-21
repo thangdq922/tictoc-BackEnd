@@ -10,31 +10,28 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.tictoc.auth.MyUser;
 
-
-
 @Configuration
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 public class JpaAuditingConfig {
-	
+
 	@Bean
 	public AuditorAware<Long> auditorProvider() {
 		return new AuditorAwareImpl();
 	}
-	
+
 	public class AuditorAwareImpl implements AuditorAware<Long> {
 
-	
-
-	 @Override
-	    public Optional<Long> getCurrentAuditor() {
-			if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() == "anonymousUser") {
+		@Override
+		public Optional<Long> getCurrentAuditor() {
+			if (SecurityContextHolder.getContext().getAuthentication() == null
+					|| SecurityContextHolder.getContext().getAuthentication().getPrincipal() == "anonymousUser") {
 				return null;
 			}
-				
-			Long user = ((MyUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser().getId();
-	        return Optional.ofNullable(user);
-	 }
-	        
-	 
+
+			Long user = ((MyUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser()
+					.getId();
+			return Optional.ofNullable(user);
+		}
+
 	}
 }

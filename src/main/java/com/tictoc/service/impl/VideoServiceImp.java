@@ -50,19 +50,19 @@ public class VideoServiceImp implements VideoService {
 		VideoEntity videoEntity = new VideoEntity();
 		videoEntity = converter.convertToEntity(videoDTO);
 
-		return converter.convertToDto(videoRepository.save(videoEntity), SecurityUtil.getPrincipalId());
+		return converter.convertToDto(videoRepository.save(videoEntity), SecurityUtil.getCurrentID());
 	}
 
 	@Override
 	public VideoDTO findById(Long id) {
 		Optional<VideoEntity> entity = videoRepository.findById(id);
-		return converter.convertToDto(entity.get(), SecurityUtil.getPrincipalId());
+		return converter.convertToDto(entity.get(), SecurityUtil.getCurrentID());
 	}
 
 	@Override
 	public List<VideoDTO> searchVdieo(String keyWord, Pageable pageable) {
 		Page<VideoEntity> entities = videoRepository.findByCaptionContaining(keyWord, pageable);
-		return entities.stream().map((entity) -> converter.convertToDto(entity, SecurityUtil.getPrincipalId()))
+		return entities.stream().map((entity) -> converter.convertToDto(entity, SecurityUtil.getCurrentID()))
 				.collect(Collectors.toList());
 	}
 
@@ -70,10 +70,10 @@ public class VideoServiceImp implements VideoService {
 	public List<VideoDTO> findListVideo(String type, Pageable pageable) {
 		if (type.equals("for-you")) {
 			Page<VideoEntity> entities = videoRepository.findAll(pageable);
-			return entities.stream().map((entity) -> converter.convertToDto(entity, SecurityUtil.getPrincipalId()))
+			return entities.stream().map((entity) -> converter.convertToDto(entity, SecurityUtil.getCurrentID()))
 					.collect(Collectors.toList());
 		} else {
-			Long idCurrent = SecurityUtil.getPrincipalId();
+			Long idCurrent = SecurityUtil.getCurrentID();
 			List<FollowEntity> followEntities = followRepository.findByFollowing(idCurrent);
 			List<VideoEntity> videoEntities = new ArrayList<>();
 			followEntities.forEach(
@@ -90,7 +90,7 @@ public class VideoServiceImp implements VideoService {
 	@Override
 	public List<VideoDTO> findVideoByUser(Long id) {
 		List<VideoEntity> entities = videoRepository.findByCreatedBy(id);
-		return entities.stream().map((entity) -> converter.convertToDto(entity, SecurityUtil.getPrincipalId()))
+		return entities.stream().map((entity) -> converter.convertToDto(entity, SecurityUtil.getCurrentID()))
 				.collect(Collectors.toList());
 	}
 
@@ -98,7 +98,7 @@ public class VideoServiceImp implements VideoService {
 	public VideoDTO findPopularVideo(Long id) {
 		Optional<VideoEntity> entity = videoRepository.findTopByCreatedByOrderByViewsCountDesc(id);
 		if (entity.isPresent()) {
-			return converter.convertToDto(entity.get(), SecurityUtil.getPrincipalId());
+			return converter.convertToDto(entity.get(), SecurityUtil.getCurrentID());
 		}
 		return null;
 	}
@@ -129,14 +129,14 @@ public class VideoServiceImp implements VideoService {
 				userRepository.findById(videoEntity.getCreatedBy()).get(), SecurityUtil.getUserCurrent(), videoEntity,
 				NotificationType.LIKE);
 		notificationRepository.save(notificationEntity);
-		return converter.convertToDto(videoEntity, SecurityUtil.getPrincipalId());
+		return converter.convertToDto(videoEntity, SecurityUtil.getCurrentID());
 	}
 
 	@Override
 	@Transactional
 	public VideoDTO unlike(Long id) {
 		VideoEntity videoEntity = videoRepository.findById(id).get();
-		Long idCurrent = SecurityUtil.getPrincipalId();
+		Long idCurrent = SecurityUtil.getCurrentID();
 		EmotionEntity emotionEntity = emotionRepository.findByVideoAndUser(videoEntity, idCurrent).get();
 		emotionRepository.delete(emotionEntity);
 		return converter.convertToDto(videoEntity, idCurrent);

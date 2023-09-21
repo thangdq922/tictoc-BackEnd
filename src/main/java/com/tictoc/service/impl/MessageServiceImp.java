@@ -16,7 +16,6 @@ import com.tictoc.entity.UserEntity;
 import com.tictoc.repository.MessageRepository;
 import com.tictoc.repository.UserRepository;
 import com.tictoc.service.MessageService;
-import com.tictoc.util.SecurityUtil;
 
 import jakarta.transaction.Transactional;
 
@@ -32,12 +31,13 @@ public class MessageServiceImp implements MessageService {
 
 	@Override
 	@Transactional
-	public MessageDTO sendMessage(String content, String username) {
+	public MessageDTO sendMessage(String content, String username, UserEntity userCurrent) {
 		UserEntity userEntity = userRepository.findByUserName(username).orElse(null);
 		MessageEnitty entity = new MessageEnitty();
 		entity.setContent(content);
 		entity.setUserTo(userEntity);
-		entity.setRoom(getRoom(SecurityUtil.getPrincipalId(), userEntity.getId()));
+		entity.setUserFrom(userCurrent);
+		entity.setRoom(getRoom(userCurrent.getId(), userEntity.getId()));
 		return converter.convertToDto(repository.save(entity));
 	}
 
@@ -49,10 +49,9 @@ public class MessageServiceImp implements MessageService {
 	}
 
 	@Override
-	public List<MessageDTO> getChatRoom(String username) {
+	public List<MessageDTO> getChatRoom(String username, Long currentId) {
 		UserEntity userEntity = userRepository.findByUserName(username).orElse(null);
-		List<MessageEnitty> entities = repository
-				.findByRoom(getRoom(SecurityUtil.getPrincipalId(), userEntity.getId()));
+		List<MessageEnitty> entities = repository.findByRoomOrderByCreatedDateDesc(getRoom(currentId, userEntity.getId()));
 		return entities.stream().map((entity) -> converter.convertToDto(entity)).collect(Collectors.toList());
 	}
 

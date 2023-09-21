@@ -2,7 +2,6 @@ package com.tictoc.entity;
 
 import java.util.Date;
 
-import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -31,7 +30,7 @@ public class MessageEnitty {
 	@JoinColumn(name = "user_to_id")
 	private UserEntity userTo;
 
-	@CreatedBy
+	
 	@ManyToOne
 	@JoinColumn(name = "user_from_id")
 	private UserEntity userFrom;
