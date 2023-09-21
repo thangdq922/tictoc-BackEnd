@@ -37,6 +37,7 @@ public class MessageServiceImp implements MessageService {
 		MessageEnitty entity = new MessageEnitty();
 		entity.setContent(content);
 		entity.setUserTo(userEntity);
+		entity.setRoom(getRoom(SecurityUtil.getPrincipalId(), userEntity.getId()));
 		return converter.convertToDto(repository.save(entity));
 	}
 
@@ -48,11 +49,11 @@ public class MessageServiceImp implements MessageService {
 	}
 
 	@Override
-	public Page<MessageEnitty> getMessageUserFromUserTo(String username) {
+	public List<MessageDTO> getChatRoom(String username) {
 		UserEntity userEntity = userRepository.findByUserName(username).orElse(null);
-		Page<MessageEnitty> entities = repository.findByUserFromAndUserTo(SecurityUtil.getPrincipalId(),
-				userEntity.getId(), PageRequest.of(0, 100, Sort.Direction.DESC, "createddate"));
-		return entities;
+		List<MessageEnitty> entities = repository
+				.findByRoom(getRoom(SecurityUtil.getPrincipalId(), userEntity.getId()));
+		return entities.stream().map((entity) -> converter.convertToDto(entity)).collect(Collectors.toList());
 	}
 
 	@Override
@@ -70,6 +71,10 @@ public class MessageServiceImp implements MessageService {
 //		UserEntity userEntity = userRepository.findByUserName(userName).orElse(null);
 //		repository.deleteAll(repository.findByUserFromAndUserTo(SecurityUtil.getUserCurrent(), userEntity));
 
+	}
+
+	private String getRoom(Long userId1, Long userId2) {
+		return userId1 > userId2 ? userId2 + "-" + userId1 : userId1 + "-" + userId2;
 	}
 
 }

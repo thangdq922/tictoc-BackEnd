@@ -11,7 +11,7 @@ public interface MessageService {
 
 	Page<MessageEnitty> getMessageByUserFrom(String username);
 	
-	Page<MessageEnitty> getMessageUserFromUserTo(String username);
+	List<MessageDTO> getChatRoom(String username);
 
 	void saveStatus(Long userToId);
 

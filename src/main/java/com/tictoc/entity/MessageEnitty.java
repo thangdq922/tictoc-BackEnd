@@ -38,6 +38,8 @@ public class MessageEnitty {
 
 	private boolean status = false;
 
+	private String room;
+
 	@Column(name = "createddate")
 	@CreatedDate
 	private Date createdDate;
@@ -80,6 +82,14 @@ public class MessageEnitty {
 
 	public void setStatus(boolean status) {
 		this.status = status;
+	}
+
+	public String getRoom() {
+		return room;
+	}
+
+	public void setRoom(String room) {
+		this.room = room;
 	}
 
 	public Date getCreatedDate() {

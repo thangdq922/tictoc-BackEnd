@@ -8,16 +8,17 @@ import org.springframework.data.repository.query.Param;
 
 import com.tictoc.entity.MessageEnitty;
 
+
 public interface MessageRepository extends JpaRepository<MessageEnitty, Long> {
 
-	@Query(value = "SELECT a.* FROM messages a " + "LEFT OUTER JOIN messages b "
-			+ "ON a.user_to_id = b.user_to_id AND a.createddate < b.createddate " + "WHERE b.id IS  NULL "
-			+ "having user_from_id = :id", nativeQuery = true)
-	Page<MessageEnitty> findMessageByUserFrom(@Param("id") long userFromId, Pageable pageable);
-
 	@Query(value = "SELECT a.* FROM messages a "
-			+ "where (user_from_id = :fId and user_to_id = :tId) or (user_from_id = :tId and user_to_id = :fId)")
-	Page<MessageEnitty> findByUserFromAndUserTo(
-			@Param("fId") Long userFromId, @Param("tId") Long userToId, Pageable pageable);
-
+			+ "LEFT OUTER JOIN messages b "
+			+ "ON a.user_to_id = b.user_to_id AND a.createddate < b.createddate "
+			+ "WHERE b.id IS  NULL "
+			+ "having user_from_id = :id", 
+				nativeQuery = true)
+	Page<MessageEnitty> findMessageByUserFrom(@Param("id") long userFromId, Pageable pageable);
+	
+	List<MessageEnitty> findByUserFromAndUserTo(UserEntity userFrom, UserEntity userTo);
+	
 }
