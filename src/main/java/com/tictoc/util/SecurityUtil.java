@@ -1,5 +1,7 @@
 package com.tictoc.util;
 
+import java.security.Principal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,7 +27,12 @@ public class SecurityUtil {
 				|| SecurityContextHolder.getContext().getAuthentication().getPrincipal() == "anonymousUser") {
 			return null;
 		}
-		return ((MyUser) (SecurityContextHolder.getContext()).getAuthentication().getPrincipal()).getUser();
+		return ((MyUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+
+	}
+
+	public static UserEntity getPrincipal(Principal principal) {
+		return principal == null ? null : ((MyUser) principal).getUser();
 
 	}
 
