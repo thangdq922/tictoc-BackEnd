@@ -44,30 +44,31 @@ public class MessageServiceImp implements MessageService {
 	public Page<MessageEnitty> getMessageByUserFrom(String username) {
 		UserEntity userEntity = userRepository.findByUserName(username).orElse(null);
 		return repository.findMessageByUserFrom(userEntity.getId(),
-				PageRequest.of(0, 1000, Sort.Direction.DESC, "createddate"));
+				PageRequest.of(0, 100, Sort.Direction.DESC, "createddate"));
 	}
 
 	@Override
-	public List<MessageDTO> getMessageUserFromUserTo(String username) {
+	public Page<MessageEnitty> getMessageUserFromUserTo(String username) {
 		UserEntity userEntity = userRepository.findByUserName(username).orElse(null);
-		List<MessageEnitty> entities = repository.findByUserFromAndUserTo(SecurityUtil.getUserCurrent(), userEntity);
-		return entities.stream().map((entity) -> converter.convertToDto(entity)).collect(Collectors.toList());
+		Page<MessageEnitty> entities = repository.findByUserFromAndUserTo(SecurityUtil.getPrincipalId(),
+				userEntity.getId(), PageRequest.of(0, 100, Sort.Direction.DESC, "createddate"));
+		return entities;
 	}
 
 	@Override
 	@Transactional
 	public void saveStatus(Long userToId) {
-		UserEntity userEntity = userRepository.findById(userToId).orElse(null);
-		List<MessageEnitty> entities = repository.findByUserFromAndUserTo(SecurityUtil.getUserCurrent(), userEntity);
-		entities.forEach(entity -> entity.setStatus(true));
-		repository.saveAll(entities);
+//		UserEntity userEntity = userRepository.findById(userToId).orElse(null);
+//		List<MessageEnitty> entities = repository.findByUserFromAndUserTo(SecurityUtil.getUserCurrent(), userEntity);
+//		entities.forEach(entity -> entity.setStatus(true));
+//		repository.saveAll(entities);
 	}
 
 	@Override
 	@Transactional
 	public void clear(String userName) {
-		UserEntity userEntity = userRepository.findByUserName(userName).orElse(null);
-		repository.deleteAll(repository.findByUserFromAndUserTo(SecurityUtil.getUserCurrent(), userEntity));
+//		UserEntity userEntity = userRepository.findByUserName(userName).orElse(null);
+//		repository.deleteAll(repository.findByUserFromAndUserTo(SecurityUtil.getUserCurrent(), userEntity));
 
 	}
 

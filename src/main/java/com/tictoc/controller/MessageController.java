@@ -41,7 +41,7 @@ public class MessageController {
 	@MessageMapping("/messages.sendMessage")
 	public void sendMessage(@Header String userName, @Payload String Content) {
 		MessageDTO message = messageService.sendMessage(Content, userName);
-		simpMessagingTemplate.convertAndSendToUser(userName, "/queue/message", message);
+		simpMessagingTemplate.convertAndSendToUser(userName, "/queue/messages", message);
 	}
 
 	@MessageMapping("/messages.clear")
