@@ -42,8 +42,8 @@ public class MessageController {
 	@MessageMapping("/messages.sendMessage")
 	public void sendMessage(@Header String userName, @Payload String Content, UsernamePasswordAuthenticationToken u) {
 		MessageDTO message = messageService.sendMessage(Content, userName, SecurityUtil.getPrincipal(u));
-		simpMessagingTemplate.convertAndSendToUser(userName, "/queue/chatroom", message);
-//		simpMessagingTemplate.convertAndSendToUser(u.getName(), "/queue/chatrooms", message);
+		simpMessagingTemplate.convertAndSendToUser(userName, "/queue/chatroom/mess", message);
+		simpMessagingTemplate.convertAndSendToUser(u.getName(), "/queue/chatroom/mess", message);
 	}
 
 	@MessageMapping("/messages.clear")
