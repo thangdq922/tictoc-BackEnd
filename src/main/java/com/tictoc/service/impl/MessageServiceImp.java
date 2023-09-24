@@ -1,11 +1,9 @@
 package com.tictoc.service.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -42,33 +40,36 @@ public class MessageServiceImp implements MessageService {
 	}
 
 	@Override
-	public Page<MessageEnitty> getMessageByUserFrom(String username) {
+	public Page<MessageDTO> getMessageByUserFrom(String username) {
 		UserEntity userEntity = userRepository.findByUserName(username).orElse(null);
-		return repository.findMessageByUserFrom(userEntity.getId(),
-				PageRequest.of(0, 100, Sort.Direction.DESC, "createddate"));
+		Pageable pageSlice = PageRequest.of(0, 100, Sort.Direction.DESC, "createddate");
+		Page<MessageEnitty> entities =  repository.findMessageByUserFrom(userEntity.getId(),pageSlice);
+		return entities.map(entity -> converter.convertToDto(entity));
 	}
 
 	@Override
-	public List<MessageDTO> getChatRoom(String username, Long currentId) {
+	public Page<MessageDTO> getChatRoom(String username, Long currentId, Pageable pageable) {
 		UserEntity userEntity = userRepository.findByUserName(username).orElse(null);
-		List<MessageEnitty> entities = repository.findByRoomOrderByCreatedDateDesc(getRoom(currentId, userEntity.getId()));
-		return entities.stream().map((entity) -> converter.convertToDto(entity)).collect(Collectors.toList());
+		Page<MessageEnitty> entities = 
+				repository.findByRoomOrderByCreatedDateDesc(getRoom(currentId, userEntity.getId()), pageable);
+		return entities.map(entity -> converter.convertToDto(entity));
 	}
 
 	@Override
 	@Transactional
-	public void saveStatus(Long userToId) {
-//		UserEntity userEntity = userRepository.findById(userToId).orElse(null);
-//		List<MessageEnitty> entities = repository.findByUserFromAndUserTo(SecurityUtil.getUserCurrent(), userEntity);
-//		entities.forEach(entity -> entity.setStatus(true));
-//		repository.saveAll(entities);
+	public  Page<MessageDTO> saveStatus(String username, Long currentId, Pageable pageable) {
+		UserEntity userEntity = userRepository.findByUserName(username).orElse(null);
+		Page<MessageEnitty> entities = 
+				repository.findByRoomOrderByCreatedDateDesc(getRoom(currentId, userEntity.getId()),pageable);
+		entities.forEach(entity -> entity.setStatus(true));
+		repository.saveAll(entities);
+		return entities.map(entity -> converter.convertToDto(entity));
 	}
 
 	@Override
 	@Transactional
-	public void clear(String userName) {
-//		UserEntity userEntity = userRepository.findByUserName(userName).orElse(null);
-//		repository.deleteAll(repository.findByUserFromAndUserTo(SecurityUtil.getUserCurrent(), userEntity));
+	public void deleteMessage(Long id) {
+		repository.deleteById(id);
 
 	}
 

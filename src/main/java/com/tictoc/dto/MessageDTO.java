@@ -17,7 +17,7 @@ public class MessageDTO {
 	private boolean status;
 	
 	private Date createdDate; 
-
+	
 	public Long getId() {
 		return id;
 	}

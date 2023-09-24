@@ -1,7 +1,5 @@
 package com.tictoc.repository;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.tictoc.entity.MessageEnitty;
+
 
 
 public interface MessageRepository extends JpaRepository<MessageEnitty, Long> {
@@ -21,6 +20,8 @@ public interface MessageRepository extends JpaRepository<MessageEnitty, Long> {
 				nativeQuery = true)
 	Page<MessageEnitty> findMessageByUserFrom(@Param("id") long userFromId, Pageable pageable);
 	
-	List<MessageEnitty> findByRoomOrderByCreatedDateDesc(String room);
+	Page<MessageEnitty> findByRoomOrderByCreatedDateDesc(String room, Pageable pageable);
 	
+	Page<MessageEnitty> findByRoomOrderByCreatedDateAsc(String room, Pageable pageable);
+		
 }

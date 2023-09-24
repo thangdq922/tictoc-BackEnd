@@ -81,6 +81,7 @@ public class SecurityConfig {
 						
 						.requestMatchers(POST, "/api/videos/**").authenticated()
 						.requestMatchers(DELETE, "/api/videos/**").authenticated()
+//						.requestMatchers("/api/mess/**").authenticated()
 						.anyRequest().permitAll())
 
 				.sessionManagement(session -> 

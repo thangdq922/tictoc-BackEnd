@@ -1,15 +1,12 @@
 package com.tictoc.service.impl;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +41,7 @@ public class UserServiceImp implements UserService {
 	@Autowired
 	private UserConverter converter;
 	@Autowired
-	VideoService videoService;
+	private VideoService videoService;
 
 	@Override
 	@Transactional
@@ -100,9 +97,9 @@ public class UserServiceImp implements UserService {
 
 	@Override
 	public List<UserDTO> findAllUsers(Pageable pageable) {
+		Long idCurrent = SecurityUtil.getCurrentID();
 		Page<UserEntity> users = userRepository.findAll(pageable);
-		List<UserDTO> dtos = users.stream().map((user) -> converter.convertToDto(user, SecurityUtil.getCurrentID()))
-				.collect(Collectors.toList());
+		List<UserDTO> dtos = users.map(user -> converter.convertToDto(user, idCurrent)).getContent();
 		dtos.forEach((user) -> user.setPopularVideo(videoService.findPopularVideo(user.getId())));
 		return dtos;
 	}
@@ -110,28 +107,15 @@ public class UserServiceImp implements UserService {
 	@Override
 	public List<UserDTO> findUserFollowing(Pageable pageable) {
 		Long idCurrent = SecurityUtil.getCurrentID();
-		List<FollowEntity> followEntities = followRepository.findByFollowing(idCurrent);
-		List<UserEntity> userEntities = new ArrayList<>();
-		followEntities.forEach((entity) -> userEntities.add(entity.getUser()));
-		int start = (int) pageable.getOffset();
-		int end = Math.min((start + pageable.getPageSize()), userEntities.size());
-		Page<UserEntity> entities = new PageImpl<>(userEntities.subList(start, end), pageable, userEntities.size());
-		return entities.stream().map((entity) -> converter.convertToDto(entity, idCurrent))
-				.collect(Collectors.toList());
+		Page<UserEntity> entities = userRepository.findByFollowing(idCurrent, pageable);
+		return entities.map((entity) -> converter.convertToDto(entity, idCurrent)).getContent();
 	}
 
 	@Override
 	public List<UserDTO> findSuggestedUsers(Pageable pageable) {
 		Long idCurrent = SecurityUtil.getCurrentID();
-		List<UserEntity> users = userRepository.findAll();
-		List<UserDTO> dtos = users.stream().map((user) -> converter.convertToDto(user, idCurrent))
-				.collect(Collectors.toList());
-		dtos.removeIf(dto -> (dto.isFollowed() == true || dto.getId() == idCurrent));
-		dtos.forEach((user) -> user.setPopularVideo(videoService.findPopularVideo(user.getId())));
-		int start = (int) pageable.getOffset();
-		int end = Math.min((start + pageable.getPageSize()), dtos.size());
-		Page<UserDTO> userDtos = new PageImpl<>(dtos.subList(start, end), pageable, dtos.size());
-		return userDtos.getContent();
+		Page<UserEntity> entities = userRepository.findSuggestedUsers(idCurrent, pageable);
+		return entities.map(entity -> converter.convertToDto(entity, idCurrent)).getContent();
 	}
 
 	@Override
@@ -142,9 +126,9 @@ public class UserServiceImp implements UserService {
 
 	@Override
 	public List<UserDTO> searchUser(String search_key, Pageable pageable) {
+		Long idCurrent = SecurityUtil.getCurrentID();
 		Page<UserEntity> entities = userRepository.findByUserNameContaining(search_key, pageable);
-		return entities.stream().map((entity) -> converter.convertToDto(entity, SecurityUtil.getCurrentID()))
-				.collect(Collectors.toList());
+		return entities.map(entity -> converter.convertToDto(entity, idCurrent)).getContent();
 	}
 
 	@Override

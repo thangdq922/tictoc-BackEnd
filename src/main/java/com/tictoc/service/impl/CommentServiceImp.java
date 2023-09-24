@@ -44,6 +44,7 @@ public class CommentServiceImp implements CommentService {
 		commentEntity.setVideo(videoEntity);
 		commentEntity.setComments(comment);
 		commentRepository.save(commentEntity);
+		
 		NotificationEntity notificationEntity = new NotificationEntity(
 				SecurityUtil.getUserCurrent().getUserName() + " Commented Your Video",
 				userRepository.findById(videoEntity.getCreatedBy()).get(),

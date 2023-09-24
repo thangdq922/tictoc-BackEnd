@@ -1,22 +1,20 @@
 package com.tictoc.service;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.tictoc.dto.MessageDTO;
-import com.tictoc.entity.MessageEnitty;
 import com.tictoc.entity.UserEntity;
 
 public interface MessageService {
 
 	MessageDTO sendMessage(String content, String username, UserEntity userCurrent);
 
-	Page<MessageEnitty> getMessageByUserFrom(String username);
+	Page<MessageDTO> getMessageByUserFrom(String username);
 
-	List<MessageDTO> getChatRoom(String username, Long currentID);
+	Page<MessageDTO> getChatRoom(String username, Long currentID, Pageable pageable);
 
-	void saveStatus(Long userToId);
+	Page<MessageDTO> saveStatus(String username, Long currentID, Pageable pageable);
 
-	void clear(String userName);
+	void deleteMessage(Long id);
 }
