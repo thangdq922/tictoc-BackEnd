@@ -1,5 +1,6 @@
 package com.tictoc.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -34,8 +35,8 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 	
 	@Query(value = "select u.* from users u "
 			+ "where u.id != :id and u.id not in "
-			+ "(select f.user_id from followers f "
-			+ "where f.following = :id)"	
+			+ "(select user_id from followers f "
+			+ "where following = :id)"	
 			, nativeQuery = true)
-	Page<UserEntity> findSuggestedUsers(@Param("id") Long currentId, Pageable pageable);
+	List<UserEntity> findSuggestedUsers(@Param("id") Long currentId);
 }

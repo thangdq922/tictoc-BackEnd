@@ -23,5 +23,12 @@ public interface MessageRepository extends JpaRepository<MessageEnitty, Long> {
 	Page<MessageEnitty> findByRoomOrderByCreatedDateDesc(String room, Pageable pageable);
 	
 	Page<MessageEnitty> findByRoomOrderByCreatedDateAsc(String room, Pageable pageable);
-		
+	
+	@Query(value ="select count(status) from messages a "
+			+ "where a.createddate in "
+			+ "(select max(b.createddate) from messages b "
+			+ "group by b.room  "
+			+ "having b.room like CONCAT('%', :id, '%')) and status = false and user_to_id = :id"
+			,nativeQuery = true)
+	long countStatusMessage(@Param("id") long userFromId);
 }

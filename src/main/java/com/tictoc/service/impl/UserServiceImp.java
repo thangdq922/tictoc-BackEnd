@@ -4,9 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -51,7 +53,6 @@ public class UserServiceImp implements UserService {
 
 		user = converter.convertToEntity(userDto);
 		user.setRoles(Arrays.asList(role));
-
 		return converter.convertToDto(userRepository.save(user), SecurityUtil.getCurrentID());
 	}
 
@@ -114,8 +115,15 @@ public class UserServiceImp implements UserService {
 	@Override
 	public List<UserDTO> findSuggestedUsers(Pageable pageable) {
 		Long idCurrent = SecurityUtil.getCurrentID();
-		Page<UserEntity> entities = userRepository.findSuggestedUsers(idCurrent, pageable);
-		return entities.map(entity -> converter.convertToDto(entity, idCurrent)).getContent();
+		List<UserEntity> entities = idCurrent == null ? userRepository.findAll()
+				: userRepository.findSuggestedUsers(idCurrent);
+		
+		List<UserDTO> dtos = entities.stream().map(entity -> converter.convertToDto(entity, idCurrent))
+				.collect(Collectors.toList());
+		int start = (int) pageable.getOffset();
+		int end = Math.min((start + pageable.getPageSize()), dtos.size());
+		List<UserDTO> pageContent = dtos.subList(start, end);
+		return new PageImpl<>(pageContent, pageable, dtos.size()).getContent();
 	}
 
 	@Override

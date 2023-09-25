@@ -67,13 +67,17 @@ public class MessageController {
 		Long idCurrent = SecurityUtil.getPrincipal(u).getId();
 		Pageable pageSlice = PageRequest.of(0, 15);
 		Page<MessageDTO> messRoom = messageService.saveStatus(userNameTo, idCurrent, pageSlice);
+		
 		simpMessagingTemplate.convertAndSendToUser(userNameTo, "/queue/chatroom", messRoom);
+		simpMessagingTemplate.convertAndSendToUser(u.getName(), "/queue/messages",
+				messageService.getMessageByUserFrom(u.getName()));
 	}
 
 	@MessageMapping("/messages.delete")
 	public void deleteMessage(@Payload MessageDTO mess, UsernamePasswordAuthenticationToken u) {
 		Long idCurrent = SecurityUtil.getPrincipal(u).getId();
 		String userTo = mess.getUserTo().getUserName();
+		
 		if (mess.getUserFrom().getId() == idCurrent) {
 			messageService.deleteMessage(mess.getId());
 			Pageable pageSlice = PageRequest.of(0, 15);

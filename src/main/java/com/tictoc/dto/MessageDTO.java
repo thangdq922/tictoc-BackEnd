@@ -11,13 +11,15 @@ public class MessageDTO {
 	private String content;
 
 	private UserEntity userTo;
-	
+
 	private UserEntity userFrom;
-	
+
 	private boolean status;
-	
-	private Date createdDate; 
-	
+
+	private Date createdDate;
+
+	private long countNotRead;
+
 	public Long getId() {
 		return id;
 	}
@@ -65,4 +67,13 @@ public class MessageDTO {
 	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
 	}
+
+	public long getCountNotRead() {
+		return countNotRead;
+	}
+
+	public void setCountNotRead(long countNotRead) {
+		this.countNotRead = countNotRead;
+	}
+
 }

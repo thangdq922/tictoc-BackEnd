@@ -44,7 +44,11 @@ public class MessageServiceImp implements MessageService {
 		UserEntity userEntity = userRepository.findByUserName(username).orElse(null);
 		Pageable pageSlice = PageRequest.of(0, 100, Sort.Direction.DESC, "createddate");
 		Page<MessageEnitty> entities =  repository.findMessageByUserFrom(userEntity.getId(),pageSlice);
-		return entities.map(entity -> converter.convertToDto(entity));
+		Page<MessageDTO> dtos = entities.map(entity -> converter.convertToDto(entity));
+		if (dtos.getContent().isEmpty() == false) {
+			dtos.getContent().get(0).setCountNotRead(repository.countStatusMessage(userEntity.getId()));
+		}
+		return dtos;
 	}
 
 	@Override
@@ -70,7 +74,6 @@ public class MessageServiceImp implements MessageService {
 	@Transactional
 	public void deleteMessage(Long id) {
 		repository.deleteById(id);
-
 	}
 
 	private String getRoom(Long userId1, Long userId2) {

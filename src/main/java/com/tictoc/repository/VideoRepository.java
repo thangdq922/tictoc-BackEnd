@@ -17,7 +17,7 @@ public interface VideoRepository extends JpaRepository<VideoEntity, Long> {
 
 	List<VideoEntity> findByCreatedBy(Long id);
 	
-	@Query(value = "select * from videos v "
+	@Query(value = "select v.* from videos v "
 			+ "inner join followers f "
 			+ "on v.createdby = f.user_id "
 			+ "where f.following = :id"
