@@ -44,7 +44,6 @@ public class VideoConverter {
 		entity.setFileUrl(dto.getFileUrl());
 		entity.setAllows(dto.getAllows());
 		entity.setMusic(dto.getMusic());
-		entity.setViewsCount(dto.getViewsCount());
 		return entity;
 	}
 

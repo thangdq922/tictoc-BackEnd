@@ -35,7 +35,7 @@ public class CommentServiceImp implements CommentService {
 	UserRepository userRepository;
 	@Autowired
 	NotificationRepository notificationRepository;
-	
+
 	@Override
 	@Transactional
 	public CommentDTO saveComment(String comment, Long id) {
@@ -44,15 +44,15 @@ public class CommentServiceImp implements CommentService {
 		commentEntity.setVideo(videoEntity);
 		commentEntity.setComments(comment);
 		commentRepository.save(commentEntity);
-		
-		NotificationEntity notificationEntity = new NotificationEntity(
-				SecurityUtil.getUserCurrent().getUserName() + " Commented Your Video",
-				userRepository.findById(videoEntity.getCreatedBy()).get(),
-				SecurityUtil.getUserCurrent(),
-				videoEntity,
-				NotificationType.COMMENT
-				);
+
+		if (SecurityUtil.getUserCurrent().getId() != videoEntity.getCreatedBy()) {
+			NotificationEntity notificationEntity = new NotificationEntity(
+					SecurityUtil.getUserCurrent().getUserName() + " Commented Your Video",
+					userRepository.findById(videoEntity.getCreatedBy()).get(), 
+					SecurityUtil.getUserCurrent(),
+					videoEntity, NotificationType.COMMENT);
 			notificationRepository.save(notificationEntity);
+		}
 		return converter.convertToDto(commentEntity);
 	}
 

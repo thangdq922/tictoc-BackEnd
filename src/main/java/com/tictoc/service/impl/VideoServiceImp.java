@@ -112,14 +112,15 @@ public class VideoServiceImp implements VideoService {
 		EmotionEntity emotionEntity = new EmotionEntity();
 		emotionEntity.setVideo(videoEntity);
 		emotionRepository.save(emotionEntity);
-		
-		NotificationEntity notificationEntity = new NotificationEntity(
-				SecurityUtil.getUserCurrent().getUserName() + " Liked Your Video",
-				userRepository.findById(videoEntity.getCreatedBy()).get(), 
-				SecurityUtil.getUserCurrent(), 
-				videoEntity,
-				NotificationType.LIKE);
-		notificationRepository.save(notificationEntity);
+
+		if (SecurityUtil.getUserCurrent().getId() != videoEntity.getCreatedBy()) {
+			NotificationEntity notificationEntity = new NotificationEntity(
+					SecurityUtil.getUserCurrent().getUserName() + " Liked Your Video",
+					userRepository.findById(videoEntity.getCreatedBy()).get(), 
+					SecurityUtil.getUserCurrent(),
+					videoEntity, NotificationType.LIKE);
+			notificationRepository.save(notificationEntity);
+		}
 		return converter.convertToDto(videoEntity, SecurityUtil.getCurrentID());
 	}
 
