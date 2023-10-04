@@ -100,8 +100,11 @@ public class UserServiceImp implements UserService {
 	public List<UserDTO> findAllUsers(Pageable pageable) {
 		Long idCurrent = SecurityUtil.getCurrentID();
 		Page<UserEntity> users = userRepository.findAll(pageable);
-		List<UserDTO> dtos = users.map(user -> converter.convertToDto(user, idCurrent)).getContent();
-		dtos.forEach((user) -> user.setPopularVideo(videoService.findPopularVideo(user.getId())));
+		List<UserDTO> dtos = users.map(user -> {
+			UserDTO dto = converter.convertToDto(user, idCurrent);
+			dto.setPopularVideo(videoService.findPopularVideo(user.getId()));
+			return dto;
+		}).getContent();
 		return dtos;
 	}
 
@@ -117,9 +120,13 @@ public class UserServiceImp implements UserService {
 		Long idCurrent = SecurityUtil.getCurrentID();
 		List<UserEntity> entities = idCurrent == null ? userRepository.findAll()
 				: userRepository.findSuggestedUsers(idCurrent);
-		
-		List<UserDTO> dtos = entities.stream().map(entity -> converter.convertToDto(entity, idCurrent))
-				.collect(Collectors.toList());
+
+		List<UserDTO> dtos = entities.stream().map(user -> {
+			UserDTO dto = converter.convertToDto(user, idCurrent);
+			dto.setPopularVideo(videoService.findPopularVideo(user.getId()));
+			return dto;
+		}).collect(Collectors.toList());
+
 		int start = (int) pageable.getOffset();
 		int end = Math.min((start + pageable.getPageSize()), dtos.size());
 		List<UserDTO> pageContent = dtos.subList(start, end);
