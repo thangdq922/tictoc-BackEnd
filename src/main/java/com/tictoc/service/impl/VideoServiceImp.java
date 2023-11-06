@@ -1,6 +1,7 @@
 package com.tictoc.service.impl;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -48,6 +49,17 @@ public class VideoServiceImp implements VideoService {
 		videoEntity = converter.convertToEntity(videoDTO);
 
 		return converter.convertToDto(videoRepository.save(videoEntity), SecurityUtil.getCurrentID());
+	}
+
+	@Override
+	public VideoDTO editVideo(Map<String, Object> fields) {
+		Optional<VideoEntity> existingVideo = videoRepository.findById(((Integer) fields.get("id")).longValue());
+		VideoEntity videoEntity = existingVideo.get();
+		if (existingVideo.isPresent()) {
+			videoRepository.save(converter.convertFieldToEntity(fields, videoEntity));
+			return converter.convertToDto(videoEntity, ((Integer) fields.get("id")).longValue());
+		}
+		return null;
 	}
 
 	@Override
@@ -116,8 +128,7 @@ public class VideoServiceImp implements VideoService {
 		if (SecurityUtil.getUserCurrent().getId() != videoEntity.getCreatedBy()) {
 			NotificationEntity notificationEntity = new NotificationEntity(
 					SecurityUtil.getUserCurrent().getUserName() + " Liked Your Video",
-					userRepository.findById(videoEntity.getCreatedBy()).get(), 
-					SecurityUtil.getUserCurrent(),
+					userRepository.findById(videoEntity.getCreatedBy()).get(), SecurityUtil.getUserCurrent(),
 					videoEntity, NotificationType.LIKE);
 			notificationRepository.save(notificationEntity);
 		}

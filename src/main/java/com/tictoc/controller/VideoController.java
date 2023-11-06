@@ -1,5 +1,7 @@
 package com.tictoc.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +32,11 @@ public class VideoController {
 	public ResponseEntity<?> postVideo(@RequestBody VideoDTO video) {
 
 		return new ResponseEntity<>(videoService.saveVideo(video), HttpStatus.OK);
+	}
+	
+	@PatchMapping("/{id}")
+	public ResponseEntity<?> updateField(@RequestBody Map<String, Object> video) {
+		return ResponseEntity.ok(videoService.editVideo(video));
 	}
 
 	@GetMapping

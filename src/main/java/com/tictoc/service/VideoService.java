@@ -1,6 +1,7 @@
 package com.tictoc.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Pageable;
 
@@ -9,6 +10,8 @@ import com.tictoc.dto.VideoDTO;
 public interface VideoService {
 
 	VideoDTO saveVideo(VideoDTO videoDTO);
+	
+	VideoDTO editVideo(Map<String, Object> fields);
 
 	VideoDTO findById(Long id);
 
